@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Second Brain App</title>
+</head>
+<body>
+
+  <h1>🧠 Second Brain App</h1>
+
+  <input id="title" placeholder="Enter title" /><br><br>
+  <textarea id="content" placeholder="Enter content"></textarea><br><br>
+
+  <button onclick="addNote()">Add Note</button>
+
+  <h2>Saved Notes</h2>
+  <div id="notes"></div>
+
+  <script>
+    const API = "http://127.0.0.1:8000";
+
+    async function addNote() {
+      const title = document.getElementById("title").value;
+      const content = document.getElementById("content").value;
+
+      await fetch(API + "/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, content })
+      });
+
+      document.getElementById("title").value = "";
+      document.getElementById("content").value = "";
+
+      loadNotes();
+    }
+
+    async function loadNotes() {
+      const res = await fetch(API + "/notes");
+      const notes = await res.json();
+
+      const container = document.getElementById("notes");
+      container.innerHTML = "";
+
+      notes.forEach(note => {
+        container.innerHTML += `
+          <div style="border:1px solid #ccc; padding:10px; margin:10px 0">
+            <h3>${note.title}</h3>
+            <p>${note.content}</p>
+            <small>${note.created_at}</small>
+          </div>
+        `;
+      });
+    }
+
+    // Load notes when page opens
+    loadNotes();
+  </script>
+
+</body>
+</html>
